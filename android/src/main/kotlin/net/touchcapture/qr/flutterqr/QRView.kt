@@ -182,7 +182,7 @@ class QRView(private val registrar: PluginRegistry.Registrar, id: Int) :
         cameraPermissionContinuation = Runnable {
             cameraPermissionContinuation = null
             if (!hasCameraPermission()) {
-                channel.invokeMethod("onPermissionDenied",'')
+                channel.invokeMethod("onPermissionDenied","")
                 return@Runnable
             }
         }
