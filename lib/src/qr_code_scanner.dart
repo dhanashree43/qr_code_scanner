@@ -127,7 +127,7 @@ class QRViewController {
   final StreamController<String> _permissionDeniedUpdateController =
   StreamController<String>();
   Stream<String> get scannedDataStream => _scanUpdateController.stream;
-
+  Stream<String> get permissionDeniedUpdateDataStream => _permissionDeniedUpdateController.stream;
   void flipCamera() {
     _channel.invokeMethod('flipCamera');
   }
