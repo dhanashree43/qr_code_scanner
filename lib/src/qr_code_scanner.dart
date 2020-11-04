@@ -109,18 +109,23 @@ class QRViewController {
             if (call.arguments != null) {
               _scanUpdateController.sink.add(call.arguments.toString());
             }
+            break;
+          case onPermissionDenied:
+            _permissionDeniedUpdateController.sink.add('onPermissionDenied');
+            break;
         }
       },
     );
   }
 
   static const scanMethodCall = 'onRecognizeQR';
-
+  static const onPermissionDenied = 'onPermissionDenied';
   final MethodChannel _channel;
 
   final StreamController<String> _scanUpdateController =
       StreamController<String>();
-
+  final StreamController<String> _permissionDeniedUpdateController =
+  StreamController<String>();
   Stream<String> get scannedDataStream => _scanUpdateController.stream;
 
   void flipCamera() {
