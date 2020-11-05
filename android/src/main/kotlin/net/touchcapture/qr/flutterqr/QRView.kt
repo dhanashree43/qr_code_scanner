@@ -143,6 +143,8 @@ class QRView(private val registrar: PluginRegistry.Registrar, id: Int) :
             if (id == CAMERA_REQUEST_ID && grantResults[0] == PERMISSION_GRANTED) {
                 cameraPermissionContinuation?.run()
                 return true
+            }else{
+                channel.invokeMethod("onPermissionDenied","")
             }
             return false
         }
@@ -182,7 +184,8 @@ class QRView(private val registrar: PluginRegistry.Registrar, id: Int) :
         cameraPermissionContinuation = Runnable {
             cameraPermissionContinuation = null
             if (!hasCameraPermission()) {
-                channel.invokeMethod("onPermissionDenied","")
+                result?.error(
+                        "cameraPermission", "MediaRecorderCamera permission not granted", null)
                 return@Runnable
             }
         }
