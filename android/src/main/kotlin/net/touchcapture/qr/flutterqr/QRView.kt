@@ -68,6 +68,22 @@ class QRView(private val registrar: PluginRegistry.Registrar, id: Int) :
         })
     }
 
+    private fun openAppSettingsForScanner() {
+        startAppPermissionActivity()
+    }
+
+    /**
+     * This opens app settings menu so that user can enable permissions
+     * in case of permissions denied with clicking "Never Ask Again"
+     */
+    private fun startAppPermissionActivity() {
+        val intent = Intent()
+        intent.action = android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+        val uri: Uri = Uri.fromParts("package", registrar.activeContext().packageName, null)
+        intent.data = uri
+        activity.startActivity(intent)
+    }
+
     fun flipCamera() {
         barcodeView?.pause()
         var settings = barcodeView?.cameraSettings
@@ -144,7 +160,17 @@ class QRView(private val registrar: PluginRegistry.Registrar, id: Int) :
                 cameraPermissionContinuation?.run()
                 return true
             }else{
-                channel.invokeMethod("onPermissionDenied","")
+                /*
+                * This method return false, if user select Don't ask again option | True other wise
+                * If true, show permission denied alert
+                * If false, show go to settings alert
+                */
+                val showRationale = shouldShowRequestPermissionRationale(activity, permissions[0])
+                if (showRationale) {
+                    channel.invokeMethod("onPermissionDenied", "")
+                } else {
+                    channel.invokeMethod("onPermissionNeverAsk", "")
+                }
             }
             return false
         }
@@ -160,6 +186,9 @@ class QRView(private val registrar: PluginRegistry.Registrar, id: Int) :
         when(call?.method){
             "checkAndRequestPermission" -> {
                 checkAndRequestPermission(result)
+            }
+            "appSettings" -> {
+                openAppSettingsForScanner()
             }
             "flipCamera" -> {
                 flipCamera()

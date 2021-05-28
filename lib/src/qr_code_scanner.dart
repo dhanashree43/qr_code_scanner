@@ -59,8 +59,7 @@ class _QRViewState extends State<QRView> {
         );
         break;
       default:
-        throw UnsupportedError(
-            "Trying to use the default webview implementation for $defaultTargetPlatform but there isn't a default one");
+        throw UnsupportedError("Trying to use the default webview implementation for $defaultTargetPlatform but there isn't a default one");
     }
     return _platformQrView;
   }
@@ -95,12 +94,10 @@ class _CreationParams {
 }
 
 class QRViewController {
-  QRViewController._(int id, GlobalKey qrKey)
-      : _channel = MethodChannel('net.touchcapture.qr.flutterqr/qrview_$id') {
+  QRViewController._(int id, GlobalKey qrKey) : _channel = MethodChannel('net.touchcapture.qr.flutterqr/qrview_$id') {
     if (defaultTargetPlatform == TargetPlatform.iOS) {
       final RenderBox renderBox = qrKey.currentContext.findRenderObject();
-      _channel.invokeMethod('setDimensions',
-          {'width': renderBox.size.width, 'height': renderBox.size.height});
+      _channel.invokeMethod('setDimensions', {'width': renderBox.size.width, 'height': renderBox.size.height});
     }
     _channel.setMethodCallHandler(
       (call) async {
@@ -110,8 +107,13 @@ class QRViewController {
               _scanUpdateController.sink.add(call.arguments.toString());
             }
             break;
+
           case onPermissionDenied:
             _permissionDeniedUpdateController.sink.add('onPermissionDenied');
+            break;
+
+          case onPermissionNeverAsk:
+            _permissionDeniedUpdateController.sink.add('onPermissionNeverAsk');
             break;
         }
       },
@@ -120,14 +122,21 @@ class QRViewController {
 
   static const scanMethodCall = 'onRecognizeQR';
   static const onPermissionDenied = 'onPermissionDenied';
+  static const onPermissionNeverAsk = 'onPermissionNeverAsk';
+
   final MethodChannel _channel;
 
-  final StreamController<String> _scanUpdateController =
-      StreamController<String>();
-  final StreamController<String> _permissionDeniedUpdateController =
-  StreamController<String>();
+  final StreamController<String> _scanUpdateController = StreamController<String>();
+  final StreamController<String> _permissionDeniedUpdateController = StreamController<String>();
+
   Stream<String> get scannedDataStream => _scanUpdateController.stream;
+
   Stream<String> get permissionDeniedUpdateDataStream => _permissionDeniedUpdateController.stream;
+
+  void openAppSettingsForScanner() {
+    _channel.invokeMethod('appSettings');
+  }
+
   void flipCamera() {
     _channel.invokeMethod('flipCamera');
   }
